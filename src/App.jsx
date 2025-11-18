@@ -9,7 +9,7 @@ import Header from './components/Header/Header';
 
 function App() {
 
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(true);
   
   const toggleTheme = () => setIsDarkMode(!isDarkMode);
 
