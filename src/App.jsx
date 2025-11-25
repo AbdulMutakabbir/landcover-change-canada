@@ -4,6 +4,7 @@ import { ThemeProvider } from '@mui/material/styles';
 import { lightTheme } from './theme/LightTheme';
 import { darkTheme } from './theme/DarkTheme';
 import Header from './components/Header/Header';
+import SankeyChart from './components/SankeyChart/SankeyChart';
 
 
 
@@ -18,6 +19,7 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <Header toggleTheme={toggleTheme} isDarkMode={isDarkMode} />
+      <SankeyChart />
     </ThemeProvider>
   );
 }
