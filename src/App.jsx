@@ -5,8 +5,8 @@ import { lightTheme } from './theme/LightTheme';
 import { darkTheme } from './theme/DarkTheme';
 import Header from './components/Header/Header';
 import SankeyChart from './components/SankeyChart/SankeyChart';
-
-
+import { Provider } from "react-redux";
+import { store } from "./store/store";
 
 function App() {
 
@@ -17,10 +17,12 @@ function App() {
   const theme = useMemo(() => (isDarkMode ? darkTheme : lightTheme), [isDarkMode]);
 
   return (
-    <ThemeProvider theme={theme}>
-      <Header toggleTheme={toggleTheme} isDarkMode={isDarkMode} />
-      <SankeyChart />
-    </ThemeProvider>
+    <Provider store={store}>
+      <ThemeProvider theme={theme}>
+        <Header toggleTheme={toggleTheme} isDarkMode={isDarkMode} />
+        <SankeyChart />
+      </ThemeProvider>
+    </Provider>
   );
 }
 
