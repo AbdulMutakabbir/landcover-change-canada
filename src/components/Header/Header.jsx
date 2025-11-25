@@ -6,7 +6,7 @@ const Header = ({ toggleTheme, isDarkMode }) => {
     <AppBar position="static">
       <Toolbar>
         <Typography variant="h6" style={{ flexGrow: 1 }}>
-          My App
+          Landcover Canada
         </Typography>
         <IconButton color="inherit" onClick={toggleTheme}>
           {isDarkMode ? <Brightness7 /> : <Brightness4 />}
