@@ -1,58 +1,99 @@
 import axios from 'axios';
 import Plot from 'react-plotly.js';
-import Box from '@mui/material/Box';
 import { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux'
+import InfoButton from '../InfoButton/InfoButton';
+import SectionBox from '../SectionBox/SectionBox';
 
 const SankeyChart = () => {
-    const [chartData, setChartData] = useState([]);
-    const [nodes, setNodes] = useState([]);
-    const [sourceIds, setSourceIds] = useState([])
-    const [targetIds, setTargetIds] = useState([])
-    const [linkArea, setLinkArea] = useState([])
-    const [linkColor, setLinkColor] = useState([])
 
-    useEffect(() => {
-        axios.get('/data/landcover_canada_change_sanky_2010_2015_2020.json')
-            .then((response) => {
-                setChartData(response?.data)
-                setNodes(response?.data?.nodes)
-                setSourceIds(response?.data?.links?.source_ids)
-                setTargetIds(response?.data?.links?.target_ids)
-                setLinkArea(response?.data?.links?.area_km2)
-                setLinkColor(response?.data?.links?.colors)
-            })
-            .catch((error) => {
-                console.error('Error fetching JSON:', error);
-            });
-    }, []);
+    const nodes = useSelector((state) => state.sankey.nodes)
+    const sourceIds = useSelector((state) => state.sankey.links.source_ids)
+    const targetIds = useSelector((state) => state.sankey.links.target_ids)
+    const linkAreas = useSelector((state) => state.sankey.links.area_km2)
+    const linkColors = useSelector((state) => state.sankey.links.colors)
 
-    // const indices = links?.area_km2
-    //     ?.map((value, index) => ({ value, index }))
-    //     .filter(item => item.value >= 1000)
-    //     .map(item => item.index);
+    const maxArea = Math.max(...linkAreas)
+    const minArea = Math.max(...linkAreas)
 
-    // chartData?.links?.sourceIds?.forEach(__dirname, index => {
-    //   console.log(index)  
-    // })
+    const [showChangeOnly, setShowChangeOnly] = useState(false)
 
-    const onlyChangeIndex = chartData?.links?.source_ids?.map((val, index) => (val != targetIds[index] ? index : -1)).filter(index => index !== -1)
-    
-    // setSourceIds(sourceIds.filter((_, index) => onlyChangeIndex.includes(index)))
-    // setTargetIds(targetIds.filter((_, index) => onlyChangeIndex.includes(index)))
-    // setLinkArea(linkArea.filter((_, index) => onlyChangeIndex.includes(index)))
-    // setLinkColor(linkColor.filter((_, index) => onlyChangeIndex.includes(index)))
+    // const dispatch = useDispatch()
+
+
+    console.log(sourceIds?.filter((val, index) => sourceIds[index] + 20 !== targetIds[index]))
+    console.log(targetIds?.filter((val, index) => sourceIds[index] + 20 !== targetIds[index]))
+    console.log(linkAreas?.filter((val, index) => sourceIds[index] + 20 !== targetIds[index]))
+
+    var annotations = []
+    for (const [index, year] of ["2010","2015","2020"].entries()) {
+        annotations.push({
+            font: {
+                size: 20
+            },
+            showarrow: false,
+            text: "Year:" + year,
+            x: 0.12 + (0.19 * index * 2),
+            y: 1
+        })
+    }
 
     const layout = {
         // width: 3000,
         // height: 772,
         autosize: true,
         responsive: true,
+        margin: { l: 30, r: 30, t: 30, b: 30 },
         title: {
-            text: "Change in Canada’s Vegetation Land Cover (2010 to 2020)"
+            text: "Change in Canada’s Vegetation Land Cover (2010 to 2020)",
+            font: {
+                size: 30
+            },
+            x: 0.5,      // center horizontally
+            y: 0.99,
+            yanchor: "top",
         },
         font: {
-            size: 10
-        }
+            size: 12
+        },
+        annotations: annotations,
+        updatemenus: [
+            {
+                type: "dropdown",
+                direction: "down",
+                showactive: true,
+                x: 0.0,
+                y: 1.0,
+                xanchor: "left",
+                yanchor: "top",
+                buttons: [
+                    {
+                        label: "Show ALL Change",
+                        method: "restyle",
+                        args: [{
+                            'link': {
+                                source: [...sourceIds],
+                                target: [...targetIds],
+                                value: [...linkAreas],
+                                color: [...linkColors],
+                            }
+                        }]
+                    },
+                    {
+                        label: "Show ONLY Change",
+                        method: "restyle",
+                        args: [{
+                            'link': {
+                                source: [...sourceIds?.filter((val, index) => sourceIds[index] + 20 !== targetIds[index])],
+                                target: [...targetIds?.filter((val, index) => sourceIds[index] + 20 !== targetIds[index])],
+                                value: [...linkAreas?.filter((val, index) => sourceIds[index] + 20 !== targetIds[index])],
+                                color: [...linkColors?.filter((val, index) => sourceIds[index] + 20 !== targetIds[index])],
+                            }
+                        }]
+                    }
+                ]
+            }
+        ],
     }
 
     const config = {
@@ -64,27 +105,37 @@ const SankeyChart = () => {
         type: "sankey",
         domain: {
             x: [0, 1],
-            y: [0, 1]
+            y: [0, 0.95]
         },
         orientation: "h",
         valueformat: ".2f",
         valuesuffix: " km<sup>2</sup>",
+            xaxis:{
+        "tickangle" : 90
+    },
         node: {
-            pad: 15,
-            thickness: 30,
+            pad: 10,
+            thickness: 10,
+            align: "left",
             line: {
                 color: "black",
-                width: 0.5
+                width: 1
             },
-            label: nodes?.labels,
-            color: nodes?.colors,
-            x: nodes?.x,
+            hoverinfo: 'all',
+            label: [...nodes?.labels],
+            color: [...nodes?.colors],
+            x: [...nodes?.x],
+            y: [...nodes?.y],
         },
         link: {
-            source: sourceIds,
-            target: targetIds,
-            value: linkArea,
-            color: linkColor,
+            source: [...sourceIds],
+            target: [...targetIds],
+            value: [...linkAreas],
+            color: [...linkColors],
+            // colorscale : [
+            //     [...nodes?.colors],
+            //     [...nodes?.colors]
+            // ],
             // label: links?.colors?.map((_) => "h"),
             opacity: 0.1
         }
@@ -92,14 +143,15 @@ const SankeyChart = () => {
 
     return (
         <>
-            <Box component="section" sx={{ border: '1px dashed grey' }}>
+            <SectionBox>
+                <InfoButton />
                 <Plot
                     data={[data]}
                     layout={layout}
                     config={config}
-                    style={{ width: "100%", height: "100vh" }}
+                    style={{ width: "100%", height: "calc(100vh - 16px - 37px)" }}
                 />
-            </Box>
+            </SectionBox>
         </>
     );
 
