@@ -6,7 +6,8 @@ const InfoButton = () => {
     return(
         <Button 
             className="insight-button"
-            variant="outlined" 
+            variant="outlined"
+            color="secondary" 
             startIcon={<InfoOutlineIcon />}
         >
             Insight
