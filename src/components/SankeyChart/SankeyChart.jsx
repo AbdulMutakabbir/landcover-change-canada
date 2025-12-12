@@ -124,8 +124,8 @@ const SankeyChart = () => {
             hoverinfo: 'all',
             label: [...nodes?.labels],
             color: [...nodes?.colors],
-            x: [...nodes?.x],
-            y: [...nodes?.y],
+            // x: [...nodes?.x],
+            // y: [...nodes?.y],
         },
         link: {
             source: [...sourceIds],
